@@ -1,125 +1,740 @@
-<script>
-"use strict";
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Pre-Sales Activity Dashboard</title>
 
+<style>
+:root {
+  --navy:#14213d;
+  --blue:#2563eb;
+  --blue-dark:#1d4ed8;
+  --light:#f4f7fb;
+  --text:#172033;
+  --muted:#6b7280;
+  --green:#159957;
+  --orange:#f59e0b;
+  --red:#dc2626;
+  --purple:#7c3aed;
+  --border:#e5e7eb;
+  --white:#fff;
+}
+
+* { box-sizing:border-box; }
+
+body {
+  margin:0;
+  font-family:Arial, Helvetica, sans-serif;
+  background:var(--light);
+  color:var(--text);
+}
+
+button, select, input, textarea {
+  font:inherit;
+}
+
+button {
+  cursor:pointer;
+}
+
+header {
+  background:var(--navy);
+  color:#fff;
+  padding:20px 28px;
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  gap:20px;
+}
+
+header h1 {
+  margin:0;
+  font-size:23px;
+}
+
+header small {
+  color:#cbd5e1;
+}
+
+.app {
+  display:flex;
+  min-height:calc(100vh - 78px);
+}
+
+.sidebar {
+  width:220px;
+  background:#fff;
+  border-right:1px solid var(--border);
+  padding:18px 12px;
+}
+
+.sidebar button {
+  width:100%;
+  text-align:left;
+  padding:12px 14px;
+  margin-bottom:6px;
+  border:0;
+  border-radius:7px;
+  background:#fff;
+  color:var(--text);
+}
+
+.sidebar button:hover,
+.sidebar button.active {
+  background:#e8efff;
+  color:var(--blue);
+  font-weight:bold;
+}
+
+main {
+  flex:1;
+  padding:25px;
+  overflow:auto;
+}
+
+.page {
+  display:none;
+}
+
+.page.active {
+  display:block;
+}
+
+.toolbar,
+.filters {
+  display:flex;
+  gap:10px;
+  flex-wrap:wrap;
+  margin:18px 0;
+  align-items:center;
+}
+
+.primary,
+.secondary,
+.danger,
+.warning {
+  border:0;
+  border-radius:6px;
+  padding:10px 14px;
+}
+
+.primary {
+  background:var(--blue);
+  color:#fff;
+}
+
+.primary:hover {
+  background:var(--blue-dark);
+}
+
+.secondary {
+  background:#e5e7eb;
+  color:var(--text);
+}
+
+.danger {
+  background:#fee2e2;
+  color:var(--red);
+}
+
+.warning {
+  background:#fef3c7;
+  color:#92400e;
+}
+
+select,
+input,
+textarea {
+  padding:10px;
+  border:1px solid #d1d5db;
+  border-radius:6px;
+  background:#fff;
+}
+
+textarea {
+  min-height:90px;
+  resize:vertical;
+}
+
+.card-grid {
+  display:grid;
+  grid-template-columns:repeat(auto-fit,minmax(175px,1fr));
+  gap:15px;
+  margin:18px 0;
+}
+
+.card {
+  background:#fff;
+  border:1px solid var(--border);
+  border-radius:10px;
+  padding:18px;
+  box-shadow:0 2px 5px rgba(0,0,0,.04);
+}
+
+.card.alert {
+  border-left:5px solid var(--red);
+}
+
+.card .label {
+  color:var(--muted);
+  font-size:13px;
+}
+
+.card .value {
+  font-size:25px;
+  font-weight:bold;
+  margin-top:8px;
+}
+
+.layout {
+  display:grid;
+  grid-template-columns:repeat(auto-fit,minmax(330px,1fr));
+  gap:18px;
+}
+
+.panel {
+  background:#fff;
+  border:1px solid var(--border);
+  border-radius:10px;
+  padding:18px;
+  margin-bottom:18px;
+  overflow:auto;
+}
+
+.panel h3 {
+  margin-top:0;
+  font-size:16px;
+}
+
+table {
+  border-collapse:collapse;
+  width:100%;
+  background:#fff;
+}
+
+th,
+td {
+  padding:11px 10px;
+  border-bottom:1px solid var(--border);
+  text-align:left;
+  font-size:13px;
+  vertical-align:top;
+}
+
+th {
+  background:#f8fafc;
+  color:#4b5563;
+  white-space:nowrap;
+}
+
+th.sortable {
+  cursor:pointer;
+}
+
+th.sortable:hover {
+  color:var(--blue);
+}
+
+.badge {
+  display:inline-block;
+  padding:4px 8px;
+  border-radius:20px;
+  font-size:11px;
+  font-weight:bold;
+  white-space:nowrap;
+}
+
+.badge.green { background:#dcfce7; color:#166534; }
+.badge.blue { background:#dbeafe; color:#1d4ed8; }
+.badge.orange { background:#fef3c7; color:#92400e; }
+.badge.red { background:#fee2e2; color:#991b1b; }
+.badge.purple { background:#ede9fe; color:#6d28d9; }
+.badge.gray { background:#f3f4f6; color:#4b5563; }
+
+.bar-row {
+  display:grid;
+  grid-template-columns:135px 1fr 105px;
+  gap:8px;
+  align-items:center;
+  margin:13px 0;
+  font-size:13px;
+}
+
+.bar {
+  height:13px;
+  background:#e5e7eb;
+  border-radius:20px;
+  overflow:hidden;
+}
+
+.bar span {
+  display:block;
+  height:100%;
+  background:var(--blue);
+  border-radius:20px;
+  transition:width .3s;
+}
+
+.bar-row.clickable {
+  cursor:pointer;
+}
+
+.bar-row.clickable:hover {
+  color:var(--blue);
+}
+
+.chart-note {
+  color:var(--muted);
+  font-size:12px;
+  margin-top:14px;
+}
+
+.health-healthy { color:var(--green); font-weight:bold; }
+.health-attention { color:var(--orange); font-weight:bold; }
+.health-risk { color:var(--red); font-weight:bold; }
+
+.modal {
+  display:none;
+  position:fixed;
+  inset:0;
+  background:rgba(0,0,0,.45);
+  align-items:center;
+  justify-content:center;
+  z-index:10;
+}
+
+.modal.show {
+  display:flex;
+}
+
+.modal-box {
+  background:#fff;
+  width:min(700px,94vw);
+  max-height:90vh;
+  overflow:auto;
+  border-radius:10px;
+  padding:22px;
+}
+
+.form-grid {
+  display:grid;
+  grid-template-columns:repeat(2,1fr);
+  gap:13px;
+}
+
+.form-grid .full {
+  grid-column:1 / -1;
+}
+
+.form-grid label {
+  display:flex;
+  flex-direction:column;
+  gap:6px;
+  font-size:13px;
+  color:#4b5563;
+}
+
+.modal-actions {
+  display:flex;
+  justify-content:flex-end;
+  gap:9px;
+  margin-top:20px;
+}
+
+.empty {
+  color:var(--muted);
+  padding:18px 0;
+}
+
+@media(max-width:760px) {
+  .sidebar {
+    width:65px;
+  }
+
+  .sidebar button {
+    font-size:0;
+    text-align:center;
+  }
+
+  .sidebar button::first-letter {
+    font-size:20px;
+  }
+
+  main {
+    padding:15px;
+  }
+
+  .form-grid {
+    grid-template-columns:1fr;
+  }
+
+  .form-grid .full {
+    grid-column:auto;
+  }
+
+  header {
+    padding:15px;
+  }
+
+  header h1 {
+    font-size:18px;
+  }
+}
+</style>
+</head>
+
+<body>
+
+<header>
+  <div>
+    <h1>Pre-Sales Activity Dashboard</h1>
+    <small>Sales activity tracking and reporting tool</small>
+  </div>
+  <div id="today"></div>
+</header>
+
+<div class="app">
+
+<aside class="sidebar">
+  <button class="active" onclick="showPage('dashboard',this)">📊 Dashboard</button>
+  <button onclick="showPage('opportunities',this)">💼 Opportunities</button>
+  <button onclick="showPage('activities',this)">📅 Activities</button>
+  <button onclick="showPage('tasks',this)">✅ Tasks</button>
+  <button onclick="showPage('accounts',this)">🏢 Accounts</button>
+  <button onclick="exportAll()">⬇ Export CSV</button>
+  <button onclick="resetData()">↻ Reset Data</button>
+</aside>
+
+<main>
+
+<section id="dashboard" class="page active">
+  <h2>Dashboard</h2>
+
+  <div class="toolbar filters">
+    <select id="dashboardRep" onchange="renderDashboard()">
+      <option value="">All representatives</option>
+    </select>
+
+    <select id="dashboardRegion" onchange="renderDashboard()">
+      <option value="">All regions</option>
+    </select>
+
+    <select id="dashboardStage" onchange="renderDashboard()">
+      <option value="">All stages</option>
+      <option>Lead</option>
+      <option>Qualified</option>
+      <option>Discovery</option>
+      <option>Demo</option>
+      <option>Proposal</option>
+      <option>Closed Won</option>
+      <option>Closed Lost</option>
+    </select>
+
+    <select id="dashboardHealth" onchange="renderDashboard()">
+      <option value="">All health statuses</option>
+      <option>Healthy</option>
+      <option>Needs attention</option>
+      <option>At risk</option>
+    </select>
+
+    <button class="secondary" onclick="clearDashboardFilters()">Reset filters</button>
+  </div>
+
+  <div class="card-grid">
+    <div class="card">
+      <div class="label">New Leads</div>
+      <div class="value" id="kpiLeads">0</div>
+    </div>
+
+    <div class="card">
+      <div class="label">Qualified Opportunities</div>
+      <div class="value" id="kpiQualified">0</div>
+    </div>
+
+    <div class="card">
+      <div class="label">Open Pipeline</div>
+      <div class="value" id="kpiPipeline">$0</div>
+    </div>
+
+    <div class="card">
+      <div class="label">Weighted Pipeline</div>
+      <div class="value" id="kpiWeighted">$0</div>
+    </div>
+
+    <div class="card">
+      <div class="label">Closed Won</div>
+      <div class="value" id="kpiWon">$0</div>
+    </div>
+
+    <div class="card">
+      <div class="label">Win Rate</div>
+      <div class="value" id="kpiWinRate">0%</div>
+    </div>
+
+    <div class="card">
+      <div class="label">Activities</div>
+      <div class="value" id="kpiActivities">0</div>
+    </div>
+
+    <div class="card alert">
+      <div class="label">Overdue Tasks</div>
+      <div class="value" id="kpiOverdue">0</div>
+    </div>
+  </div>
+
+  <div class="layout">
+    <div class="panel">
+      <h3>Pipeline by Stage</h3>
+      <div id="stageChart"></div>
+      <div class="chart-note">Click a stage to filter the dashboard.</div>
+    </div>
+
+    <div class="panel">
+      <h3>Pipeline by Representative</h3>
+      <div id="repChart"></div>
+      <div class="chart-note">Click a representative to filter the dashboard.</div>
+    </div>
+  </div>
+
+  <div class="layout">
+    <div class="panel">
+      <h3>Pipeline by Region</h3>
+      <div id="regionChart"></div>
+      <div class="chart-note">Click a region to filter the dashboard.</div>
+    </div>
+
+    <div class="panel">
+      <h3>Opportunity Health</h3>
+      <div id="healthChart"></div>
+    </div>
+  </div>
+
+  <div class="panel">
+    <h3>Reminders and Follow-ups</h3>
+    <div id="dashboardTasks"></div>
+  </div>
+
+  <div class="panel">
+    <h3>Recent Activities</h3>
+    <div id="recentActivities"></div>
+  </div>
+</section>
+
+<section id="opportunities" class="page">
+  <h2>Opportunities</h2>
+
+  <div class="toolbar">
+    <button class="primary" onclick="openOpportunityModal()">+ Add Opportunity</button>
+    <input id="opportunitySearch" placeholder="Search opportunities..." oninput="renderOpportunities()">
+    <select id="opportunityStageFilter" onchange="renderOpportunities()">
+      <option value="">All stages</option>
+      <option>Lead</option>
+      <option>Qualified</option>
+      <option>Discovery</option>
+      <option>Demo</option>
+      <option>Proposal</option>
+      <option>Closed Won</option>
+      <option>Closed Lost</option>
+    </select>
+    <select id="opportunityHealthFilter" onchange="renderOpportunities()">
+      <option value="">All health statuses</option>
+      <option>Healthy</option>
+      <option>Needs attention</option>
+      <option>At risk</option>
+    </select>
+  </div>
+
+  <div class="panel">
+    <div id="opportunityTable"></div>
+  </div>
+</section>
+
+<section id="activities" class="page">
+  <h2>Activities</h2>
+
+  <div class="toolbar">
+    <button class="primary" onclick="openActivityModal()">+ Add Activity</button>
+    <input id="activitySearch" placeholder="Search activities..." oninput="renderActivities()">
+  </div>
+
+  <div class="panel">
+    <div id="activityTable"></div>
+  </div>
+</section>
+
+<section id="tasks" class="page">
+  <h2>Tasks and Follow-ups</h2>
+
+  <div class="toolbar">
+    <button class="primary" onclick="openTaskModal()">+ Add Task</button>
+    <select id="taskStatusFilter" onchange="renderTasks()">
+      <option value="">All statuses</option>
+      <option>To Do</option>
+      <option>In Progress</option>
+      <option>Complete</option>
+      <option>Snoozed</option>
+    </select>
+    <select id="taskPriorityFilter" onchange="renderTasks()">
+      <option value="">All priorities</option>
+      <option>High</option>
+      <option>Medium</option>
+      <option>Low</option>
+    </select>
+  </div>
+
+  <div class="panel">
+    <div id="taskTable"></div>
+  </div>
+</section>
+
+<section id="accounts" class="page">
+  <h2>Accounts</h2>
+
+  <div class="panel">
+    <div id="accountTable"></div>
+  </div>
+</section>
+
+</main>
+</div>
+
+<div id="modal" class="modal">
+  <div class="modal-box">
+    <h2 id="modalTitle"></h2>
+    <form id="modalForm"></form>
+  </div>
+</div>
+
+<script>
 const STORAGE_KEY = "presales_tracking_data_v2";
 
 const sampleData = {
   opportunities: [
     {
-      id: 1,
-      name: "Northstar Health Analytics",
-      account: "Northstar Health",
-      rep: "Aisha Khan",
-      region: "North",
-      stage: "Proposal",
-      value: 125000,
-      probability: 75,
-      created: "2026-01-08",
-      qualified: "2026-01-15",
-      close: "2026-03-30",
-      nextAction: "Send proposal"
+      id:1,
+      name:"Northstar Health Analytics",
+      account:"Northstar Health",
+      rep:"Aisha Khan",
+      region:"North",
+      stage:"Proposal",
+      value:125000,
+      probability:75,
+      created:"2026-01-08",
+      qualified:"2026-01-15",
+      close:"2026-03-30",
+      notes:"Executive review scheduled."
     },
     {
-      id: 2,
-      name: "Acme Clinical Portal",
-      account: "Acme Medical Group",
-      rep: "Daniel Reed",
-      region: "West",
-      stage: "Demo",
-      value: 85000,
-      probability: 55,
-      created: "2026-01-12",
-      qualified: "2026-01-20",
-      close: "2026-04-15",
-      nextAction: "Demo follow-up"
+      id:2,
+      name:"Acme Clinical Portal",
+      account:"Acme Medical Group",
+      rep:"Daniel Reed",
+      region:"West",
+      stage:"Demo",
+      value:85000,
+      probability:55,
+      created:"2026-01-12",
+      qualified:"2026-01-20",
+      close:"2026-04-15",
+      notes:"Waiting for technical feedback."
+    },
+    {
+      id:3,
+      name:"Summit Data Platform",
+      account:"Summit Care",
+      rep:"Maria Lopez",
+      region:"South",
+      stage:"Qualified",
+      value:160000,
+      probability:35,
+      created:"2026-02-02",
+      qualified:"2026-02-11",
+      close:"2026-05-20",
+      notes:"Multiple stakeholders involved."
+    },
+    {
+      id:4,
+      name:"BrightPath Integration",
+      account:"BrightPath Labs",
+      rep:"Aisha Khan",
+      region:"East",
+      stage:"Lead",
+      value:45000,
+      probability:10,
+      created:"2026-02-15",
+      qualified:"",
+      close:"2026-06-01",
+      notes:"Initial qualification required."
+    },
+    {
+      id:5,
+      name:"Evergreen Enterprise Rollout",
+      account:"Evergreen Health",
+      rep:"Daniel Reed",
+      region:"North",
+      stage:"Closed Won",
+      value:210000,
+      probability:100,
+      created:"2025-12-05",
+      qualified:"2025-12-18",
+      close:"2026-02-28",
+      notes:"Customer onboarding underway."
+    },
+    {
+      id:6,
+      name:"Riverbend Workflow",
+      account:"Riverbend Clinic",
+      rep:"Maria Lopez",
+      region:"West",
+      stage:"Closed Lost",
+      value:70000,
+      probability:0,
+      created:"2025-12-18",
+      qualified:"2025-12-29",
+      close:"2026-02-20",
+      notes:"Lost to incumbent provider."
     }
   ],
+
   activities: [
-    {
-      id: 1,
-      date: "2026-03-01",
-      type: "Discovery",
-      subject: "Initial call",
-      account: "Northstar Health",
-      rep: "Aisha Khan",
-      outcome: "Positive",
-      nextAction: "Follow up"
-    }
+    {id:1,date:"2026-03-01",type:"Discovery Call",subject:"Requirements discussion",account:"Northstar Health",rep:"Aisha Khan",outcome:"Positive",notes:"Strong interest from operations."},
+    {id:2,date:"2026-03-02",type:"Demo",subject:"Product demonstration",account:"Acme Medical Group",rep:"Daniel Reed",outcome:"Follow-up required",notes:"Send security documentation."},
+    {id:3,date:"2026-03-03",type:"Email",subject:"Proposal follow-up",account:"Summit Care",rep:"Maria Lopez",outcome:"Awaiting response",notes:"Follow up next week."},
+    {id:4,date:"2026-03-04",type:"Meeting",subject:"Executive alignment",account:"Evergreen Health",rep:"Daniel Reed",outcome:"Completed",notes:"Implementation plan approved."},
+    {id:5,date:"2026-03-05",type:"Call",subject:"Initial qualification",account:"BrightPath Labs",rep:"Aisha Khan",outcome:"Positive",notes:"Schedule discovery meeting."}
   ],
+
   tasks: [
-    {
-      id: 1,
-      title: "Follow up proposal",
-      account: "Northstar Health",
-      opportunity: "Northstar Health Analytics",
-      rep: "Aisha Khan",
-      due: "2026-03-10",
-      priority: "High",
-      status: "Open",
-      notes: "Review timeline"
-    }
+    {id:1,title:"Follow up on product demonstration",account:"Acme Medical Group",opportunity:"Acme Clinical Portal",rep:"Daniel Reed",due:"2026-03-10",priority:"High",status:"To Do",notes:"Send security documentation."},
+    {id:2,title:"Schedule discovery meeting",account:"BrightPath Labs",opportunity:"BrightPath Integration",rep:"Aisha Khan",due:"2026-03-12",priority:"Medium",status:"To Do",notes:"Contact technical lead."},
+    {id:3,title:"Review proposal with executive sponsor",account:"Northstar Health",opportunity:"Northstar Health Analytics",rep:"Aisha Khan",due:"2026-03-15",priority:"High",status:"In Progress",notes:"Prepare ROI summary."}
   ],
+
   accounts: [
-    {
-      id: 1,
-      name: "Northstar Health",
-      region: "North",
-      specialty: "Healthcare",
-      owner: "Aisha Khan",
-      priority: "High",
-      status: "Active",
-      email: "",
-      phone: ""
-    }
+    {id:1,name:"Northstar Health",region:"North",specialty:"Healthcare",owner:"Aisha Khan",priority:"High",status:"Active"},
+    {id:2,name:"Acme Medical Group",region:"West",specialty:"Healthcare",owner:"Daniel Reed",priority:"High",status:"Active"},
+    {id:3,name:"Summit Care",region:"South",specialty:"Healthcare",owner:"Maria Lopez",priority:"Medium",status:"Active"},
+    {id:4,name:"BrightPath Labs",region:"East",specialty:"Technology",owner:"Aisha Khan",priority:"Medium",status:"Prospect"},
+    {id:5,name:"Evergreen Health",region:"North",specialty:"Healthcare",owner:"Daniel Reed",priority:"High",status:"Customer"},
+    {id:6,name:"Riverbend Clinic",region:"West",specialty:"Healthcare",owner:"Maria Lopez",priority:"Low",status:"Inactive"}
   ]
 };
 
-/* Safely retrieve an element */
-function getElement(id) {
-  return document.getElementById(id);
-}
+let data = JSON.parse(localStorage.getItem(STORAGE_KEY)) ||
+  JSON.parse(JSON.stringify(sampleData));
 
-/* Safely set an element's text */
-function setText(id, value) {
-  const element = getElement(id);
-  if (element) element.textContent = value;
-}
+let opportunitySort = {
+  field:"close",
+  direction:"asc"
+};
 
-/* Safely set an element's HTML */
-function setHTML(id, value) {
-  const element = getElement(id);
-  if (element) element.innerHTML = value;
-}
-
-/* Load saved data safely */
-function loadData() {
-  try {
-    const saved = localStorage.getItem(STORAGE_KEY);
-    if (!saved) return structuredClone(sampleData);
-
-    const parsed = JSON.parse(saved);
-
-    return {
-      opportunities: Array.isArray(parsed.opportunities)
-        ? parsed.opportunities
-        : [],
-      activities: Array.isArray(parsed.activities)
-        ? parsed.activities
-        : [],
-      tasks: Array.isArray(parsed.tasks)
-        ? parsed.tasks
-        : [],
-      accounts: Array.isArray(parsed.accounts)
-        ? parsed.accounts
-        : []
-    };
-  } catch (error) {
-    console.error("Could not load saved data:", error);
-    return structuredClone(sampleData);
-  }
-}
-
-let data = loadData();
+document.getElementById("today").textContent =
+  new Date().toLocaleDateString(undefined,{
+    year:"numeric",
+    month:"short",
+    day:"numeric"
+  });
 
 function save() {
   localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
@@ -127,605 +742,916 @@ function save() {
 
 function money(value) {
   return new Intl.NumberFormat("en-US", {
-    style: "currency",
-    currency: "USD",
-    maximumFractionDigits: 0
+    style:"currency",
+    currency:"USD",
+    maximumFractionDigits:0
   }).format(Number(value) || 0);
 }
 
 function esc(value) {
-  return String(value ?? "").replace(/[&<>"']/g, character => ({
-    "&": "&amp;",
-    "<": "&lt;",
-    ">": "&gt;",
-    '"': "&quot;",
-    "'": "&#039;"
-  }[character]));
+  return String(value ?? "").replace(/[&<>"']/g, m => ({
+    "&":"&amp;",
+    "<":"&lt;",
+    ">":"&gt;",
+    '"':"&quot;",
+    "'":"&#039;"
+  }[m]));
+}
+
+function todayISO() {
+  return new Date().toISOString().slice(0,10);
 }
 
 function badge(value) {
-  const text = String(value ?? "");
-  const lower = text.toLowerCase();
+  const v = String(value).toLowerCase();
+  let cls = "gray";
 
-  let color = "gray";
+  if (["closed won","positive","customer","high","completed","healthy"].includes(v)) cls="green";
+  else if (["qualified","demo","active","medium","in progress"].includes(v)) cls="blue";
+  else if (["proposal","discovery call","follow-up required","prospect","needs attention"].includes(v)) cls="orange";
+  else if (["closed lost","inactive","low","at risk","overdue"].includes(v)) cls="red";
+  else if (["to do","snoozed"].includes(v)) cls="purple";
 
-  if (
-    ["closed won", "positive", "customer", "high", "completed", "open", "active"]
-      .includes(lower)
-  ) {
-    color = "green";
-  } else if (
-    ["qualified", "demo", "medium"].includes(lower)
-  ) {
-    color = "blue";
-  } else if (
-    ["proposal", "discovery", "follow-up required", "prospect", "upcoming"]
-      .includes(lower)
-  ) {
-    color = "orange";
-  } else if (
-    ["closed lost", "inactive", "low", "overdue"].includes(lower)
-  ) {
-    color = "red";
-  }
-
-  return `<span class="badge ${color}">${esc(text)}</span>`;
+  return `<span class="badge ${cls}">${esc(value)}</span>`;
 }
 
-function todayString() {
-  return new Date().toLocaleDateString(undefined, {
-    year: "numeric",
-    month: "short",
-    day: "numeric"
-  });
-}
+function showPage(id, button) {
+  document.querySelectorAll(".page").forEach(x => x.classList.remove("active"));
+  document.getElementById(id).classList.add("active");
 
-/* This no longer crashes if #today is missing */
-function renderToday() {
-  setText("today", todayString());
-}
-
-function showPage(pageId, button) {
-  document.querySelectorAll(".page").forEach(page => {
-    page.classList.remove("active");
-  });
-
-  const selectedPage = getElement(pageId);
-  if (selectedPage) selectedPage.classList.add("active");
-
-  document.querySelectorAll(".sidebar button").forEach(item => {
-    item.classList.remove("active");
-  });
+  document.querySelectorAll(".sidebar button")
+    .forEach(x => x.classList.remove("active"));
 
   if (button) button.classList.add("active");
 
-  if (pageId === "dashboard") renderDashboard();
-  if (pageId === "opportunities") renderOpportunities();
-  if (pageId === "activities") renderActivities();
-  if (pageId === "tasks") renderTasks();
-  if (pageId === "accounts") renderAccounts();
+  if (id === "dashboard") renderDashboard();
+  if (id === "opportunities") renderOpportunities();
+  if (id === "activities") renderActivities();
+  if (id === "tasks") renderTasks();
+  if (id === "accounts") renderAccounts();
 }
 
 function setupFilters() {
-  const repSelect = getElement("dashboardRep");
-  const regionSelect = getElement("dashboardRegion");
+  const reps = [...new Set(data.opportunities.map(x => x.rep))].sort();
+  const regions = [...new Set(data.opportunities.map(x => x.region))].sort();
 
-  if (!repSelect && !regionSelect) return;
+  const repSelect = document.getElementById("dashboardRep");
+  const regionSelect = document.getElementById("dashboardRegion");
 
-  const currentRep = repSelect ? repSelect.value : "";
-  const currentRegion = regionSelect ? regionSelect.value : "";
+  const oldRep = repSelect.value;
+  const oldRegion = regionSelect.value;
 
-  const reps = [...new Set(
-    data.opportunities.map(item => item.rep).filter(Boolean)
-  )].sort();
+  repSelect.innerHTML =
+    `<option value="">All representatives</option>` +
+    reps.map(x => `<option value="${esc(x)}">${esc(x)}</option>`).join("");
 
-  const regions = [...new Set(
-    data.opportunities.map(item => item.region).filter(Boolean)
-  )].sort();
+  regionSelect.innerHTML =
+    `<option value="">All regions</option>` +
+    regions.map(x => `<option value="${esc(x)}">${esc(x)}</option>`).join("");
 
-  if (repSelect) {
-    repSelect.innerHTML =
-      `<option value="">All representatives</option>` +
-      reps.map(rep =>
-        `<option value="${esc(rep)}">${esc(rep)}</option>`
-      ).join("");
-
-    repSelect.value = reps.includes(currentRep) ? currentRep : "";
-  }
-
-  if (regionSelect) {
-    regionSelect.innerHTML =
-      `<option value="">All regions</option>` +
-      regions.map(region =>
-        `<option value="${esc(region)}">${esc(region)}</option>`
-      ).join("");
-
-    regionSelect.value = regions.includes(currentRegion)
-      ? currentRegion
-      : "";
-  }
+  if (reps.includes(oldRep)) repSelect.value = oldRep;
+  if (regions.includes(oldRegion)) regionSelect.value = oldRegion;
 }
 
-function getDashboardOpportunities() {
-  const rep = getElement("dashboardRep")?.value || "";
-  const region = getElement("dashboardRegion")?.value || "";
-  const stage = getElement("dashboardStage")?.value || "";
+function getOpportunityHealth(o) {
+  if (["Closed Won","Closed Lost"].includes(o.stage)) return "Healthy";
 
-  return data.opportunities.filter(opportunity => {
-    return (
-      (!rep || opportunity.rep === rep) &&
-      (!region || opportunity.region === region) &&
-      (!stage || opportunity.stage === stage)
-    );
-  });
+  const closeDate = o.close ? new Date(o.close) : null;
+  const daysToClose = closeDate
+    ? Math.ceil((closeDate - new Date()) / 86400000)
+    : 9999;
+
+  const related = data.activities
+    .filter(a => a.account === o.account)
+    .sort((a,b) => b.date.localeCompare(a.date));
+
+  const lastActivity = related[0];
+  const daysSinceActivity = lastActivity
+    ? Math.floor((new Date() - new Date(lastActivity.date)) / 86400000)
+    : 9999;
+
+  if (daysToClose < 0 || daysSinceActivity > 30) return "At risk";
+  if (daysToClose <= 14 || daysSinceActivity > 14 || Number(o.probability) < 25) {
+    return "Needs attention";
+  }
+
+  return "Healthy";
+}
+
+function filteredOpportunities() {
+  const rep = document.getElementById("dashboardRep").value;
+  const region = document.getElementById("dashboardRegion").value;
+  const stage = document.getElementById("dashboardStage").value;
+  const health = document.getElementById("dashboardHealth").value;
+
+  return data.opportunities.filter(o =>
+    (!rep || o.rep === rep) &&
+    (!region || o.region === region) &&
+    (!stage || o.stage === stage) &&
+    (!health || getOpportunityHealth(o) === health)
+  );
 }
 
 function renderDashboard() {
   setupFilters();
 
-  const opportunities = getDashboardOpportunities();
+  const opps = filteredOpportunities();
+  const open = opps.filter(o => !["Closed Won","Closed Lost"].includes(o.stage));
+  const won = opps.filter(o => o.stage === "Closed Won");
+  const lost = opps.filter(o => o.stage === "Closed Lost");
+  const closed = won.length + lost.length;
 
-  const openOpportunities = opportunities.filter(opportunity =>
-    !["Closed Won", "Closed Lost"].includes(opportunity.stage)
-  );
+  document.getElementById("kpiLeads").textContent =
+    opps.filter(o => o.stage === "Lead").length;
 
-  const won = opportunities.filter(
-    opportunity => opportunity.stage === "Closed Won"
-  );
+  document.getElementById("kpiQualified").textContent =
+    opps.filter(o =>
+      ["Qualified","Discovery","Demo","Proposal"].includes(o.stage)
+    ).length;
 
-  const lost = opportunities.filter(
-    opportunity => opportunity.stage === "Closed Lost"
-  );
+  document.getElementById("kpiPipeline").textContent =
+    money(open.reduce((sum,o) => sum + Number(o.value), 0));
 
-  const completedDeals = won.length + lost.length;
-  const winRate = completedDeals
-    ? Math.round((won.length / completedDeals) * 100)
-    : 0;
+  document.getElementById("kpiWeighted").textContent =
+    money(open.reduce((sum,o) =>
+      sum + Number(o.value) * Number(o.probability) / 100, 0
+    ));
 
-  setText(
-    "kpiLeads",
-    opportunities.filter(item => item.stage === "Lead").length
-  );
+  document.getElementById("kpiWon").textContent =
+    money(won.reduce((sum,o) => sum + Number(o.value), 0));
 
-  setText(
-    "kpiQualified",
-    opportunities.filter(item =>
-      ["Qualified", "Discovery", "Demo", "Proposal"].includes(item.stage)
-    ).length
-  );
+  document.getElementById("kpiWinRate").textContent =
+    closed ? Math.round(won.length / closed * 100) + "%" : "0%";
 
-  setText(
-    "kpiPipeline",
-    money(openOpportunities.reduce(
-      (total, item) => total + Number(item.value || 0),
-      0
-    ))
-  );
+  document.getElementById("kpiActivities").textContent = data.activities.length;
 
-  setText(
-    "kpiWon",
-    money(won.reduce(
-      (total, item) => total + Number(item.value || 0),
-      0
-    ))
-  );
+  document.getElementById("kpiOverdue").textContent =
+    data.tasks.filter(t => t.status !== "Complete" && t.due < todayISO()).length;
 
-  setText("kpiWinRate", `${winRate}%`);
-
-  setText(
-    "kpiActivities",
-    data.activities.length
-  );
-
-  setText(
-    "kpiOpenTasks",
-    data.tasks.filter(task => task.status !== "Completed").length
-  );
-
-  setText(
-    "kpiOverdueTasks",
-    data.tasks.filter(task =>
-      task.status !== "Completed" &&
-      task.due &&
-      new Date(task.due) < new Date()
-    ).length
-  );
-
-  renderStageChart(opportunities);
-  renderRepChart(opportunities);
+  renderStageChart(opps);
+  renderRepChart(open);
+  renderRegionChart(open);
+  renderHealthChart(opps);
+  renderDashboardTasks();
   renderRecentActivities();
 }
 
-function renderStageChart(opportunities) {
-  const container = getElement("stageChart");
-  if (!container) return;
+function renderStageChart(opps) {
+  const stages = [
+    "Lead","Qualified","Discovery","Demo",
+    "Proposal","Closed Won","Closed Lost"
+  ];
 
-  const totals = {};
+  const values = stages.map(stage =>
+    opps.filter(o => o.stage === stage)
+      .reduce((sum,o) => sum + Number(o.value), 0)
+  );
 
-  opportunities.forEach(opportunity => {
-    const stage = opportunity.stage || "Unspecified";
-    totals[stage] = (totals[stage] || 0) + Number(opportunity.value || 0);
-  });
+  const max = Math.max(...values, 1);
 
-  const values = Object.values(totals);
-  const maximum = Math.max(...values, 1);
-
-  const html = Object.entries(totals).map(([stage, value]) => `
-    <div class="bar-row">
-      <span>${esc(stage)}</span>
+  document.getElementById("stageChart").innerHTML = stages.map((stage,i) => `
+    <div class="bar-row clickable" onclick="filterByStage('${stage}')">
+      <div>${stage}</div>
       <div class="bar">
-        <span style="width:${(value / maximum) * 100}%"></span>
+        <span style="width:${values[i] / max * 100}%"></span>
       </div>
-      <strong>${money(value)}</strong>
+      <div>${money(values[i])}</div>
     </div>
   `).join("");
-
-  container.innerHTML = html || `<div class="empty">No pipeline data</div>`;
 }
 
-function renderRepChart(opportunities) {
-  const container = getElement("repChart");
-  if (!container) return;
+function renderRepChart(opps) {
+  const reps = [...new Set(opps.map(o => o.rep))].sort();
+  const values = reps.map(rep =>
+    opps.filter(o => o.rep === rep)
+      .reduce((sum,o) => sum + Number(o.value), 0)
+  );
 
-  const totals = {};
+  const max = Math.max(...values, 1);
 
-  opportunities.forEach(opportunity => {
-    const rep = opportunity.rep || "Unassigned";
-    totals[rep] = (totals[rep] || 0) + Number(opportunity.value || 0);
-  });
-
-  const values = Object.values(totals);
-  const maximum = Math.max(...values, 1);
-
-  const html = Object.entries(totals).map(([rep, value]) => `
-    <div class="bar-row">
-      <span>${esc(rep)}</span>
-      <div class="bar">
-        <span style="width:${(value / maximum) * 100}%"></span>
+  document.getElementById("repChart").innerHTML = reps.length
+    ? reps.map((rep,i) => `
+      <div class="bar-row clickable" onclick="filterByRep('${esc(rep)}')">
+        <div>${esc(rep)}</div>
+        <div class="bar">
+          <span style="width:${values[i] / max * 100}%"></span>
+        </div>
+        <div>${money(values[i])}</div>
       </div>
-      <strong>${money(value)}</strong>
+    `).join("")
+    : `<p class="empty">No matching opportunities.</p>`;
+}
+
+function renderRegionChart(opps) {
+  const regions = [...new Set(opps.map(o => o.region))].sort();
+  const values = regions.map(region =>
+    opps.filter(o => o.region === region)
+      .reduce((sum,o) => sum + Number(o.value), 0)
+  );
+
+  const max = Math.max(...values, 1);
+
+  document.getElementById("regionChart").innerHTML = regions.length
+    ? regions.map((region,i) => `
+      <div class="bar-row clickable" onclick="filterByRegion('${esc(region)}')">
+        <div>${esc(region)}</div>
+        <div class="bar">
+          <span style="width:${values[i] / max * 100}%"></span>
+        </div>
+        <div>${money(values[i])}</div>
+      </div>
+    `).join("")
+    : `<p class="empty">No matching opportunities.</p>`;
+}
+
+function renderHealthChart(opps) {
+  const statuses = ["Healthy","Needs attention","At risk"];
+  const counts = statuses.map(status =>
+    opps.filter(o => getOpportunityHealth(o) === status).length
+  );
+
+  document.getElementById("healthChart").innerHTML = statuses.map((status,i) => `
+    <div class="bar-row clickable" onclick="filterByHealth('${status}')">
+      <div>${badge(status)}</div>
+      <div class="bar">
+        <span style="width:${counts[i] / Math.max(...counts,1) * 100}%"></span>
+      </div>
+      <div>${counts[i]} opportunities</div>
     </div>
   `).join("");
-
-  container.innerHTML = html || `<div class="empty">No representative data</div>`;
 }
 
 function renderRecentActivities() {
-  const container = getElement("recentActivities");
-  if (!container) return;
-
   const rows = [...data.activities]
-    .sort((a, b) => String(b.date).localeCompare(String(a.date)))
-    .slice(0, 5);
+    .sort((a,b) => b.date.localeCompare(a.date))
+    .slice(0,8);
 
-  if (!rows.length) {
-    container.innerHTML = `<div class="empty">No recent activities</div>`;
-    return;
-  }
-
-  container.innerHTML = `
-    <div class="table-wrap">
-      <table>
+  document.getElementById("recentActivities").innerHTML = rows.length ? `
+    <table>
+      <tr>
+        <th>Date</th><th>Type</th><th>Subject</th>
+        <th>Account</th><th>Rep</th><th>Outcome</th>
+      </tr>
+      ${rows.map(a => `
         <tr>
-          <th>Date</th>
-          <th>Subject</th>
-          <th>Representative</th>
-          <th>Outcome</th>
+          <td>${esc(a.date)}</td>
+          <td>${badge(a.type)}</td>
+          <td>${esc(a.subject)}</td>
+          <td>${esc(a.account)}</td>
+          <td>${esc(a.rep)}</td>
+          <td>${badge(a.outcome)}</td>
         </tr>
-        ${rows.map(activity => `
-          <tr>
-            <td>${esc(activity.date)}</td>
-            <td>${esc(activity.subject)}</td>
-            <td>${esc(activity.rep)}</td>
-            <td>${badge(activity.outcome)}</td>
-          </tr>
-        `).join("")}
-      </table>
-    </div>
-  `;
+      `).join("")}
+    </table>
+  ` : `<p class="empty">No activities recorded.</p>`;
+}
+
+function renderDashboardTasks() {
+  const rows = data.tasks
+    .filter(t => t.status !== "Complete")
+    .sort((a,b) => a.due.localeCompare(b.due))
+    .slice(0,8);
+
+  document.getElementById("dashboardTasks").innerHTML = rows.length ? `
+    <table>
+      <tr>
+        <th>Task</th><th>Account</th><th>Rep</th>
+        <th>Due</th><th>Priority</th><th>Status</th>
+      </tr>
+      ${rows.map(t => `
+        <tr>
+          <td>${esc(t.title)}</td>
+          <td>${esc(t.account)}</td>
+          <td>${esc(t.rep)}</td>
+          <td>${t.due < todayISO() ? badge("Overdue") : esc(t.due)}</td>
+          <td>${badge(t.priority)}</td>
+          <td>${badge(t.status)}</td>
+        </tr>
+      `).join("")}
+    </table>
+  ` : `<p class="empty">No outstanding tasks.</p>`;
 }
 
 function renderOpportunities() {
-  const container = getElement("opportunityTable");
-  if (!container) return;
-
   const query = (
-    getElement("opportunitySearch")?.value || ""
+    document.getElementById("opportunitySearch")?.value || ""
   ).toLowerCase();
 
-  const rows = data.opportunities.filter(item =>
-    Object.values(item).join(" ").toLowerCase().includes(query)
+  const stage = document.getElementById("opportunityStageFilter")?.value || "";
+  const health = document.getElementById("opportunityHealthFilter")?.value || "";
+
+  let rows = data.opportunities.filter(o =>
+    Object.values(o).join(" ").toLowerCase().includes(query) &&
+    (!stage || o.stage === stage) &&
+    (!health || getOpportunityHealth(o) === health)
   );
 
-  if (!rows.length) {
-    container.innerHTML = `<div class="empty">No opportunities found</div>`;
-    return;
+  rows.sort((a,b) => {
+    const x = a[opportunitySort.field];
+    const y = b[opportunitySort.field];
+
+    if (x === y) return 0;
+    const result = x > y ? 1 : -1;
+    return opportunitySort.direction === "asc" ? result : -result;
+  });
+
+  document.getElementById("opportunityTable").innerHTML = rows.length ? `
+    <table>
+      <tr>
+        <th>Opportunity</th>
+        <th>Account</th>
+        <th>Rep</th>
+        <th>Region</th>
+        <th>Stage</th>
+        <th>Value</th>
+        <th>Probability</th>
+        <th>Health</th>
+        <th>Close Date</th>
+        <th>Actions</th>
+      </tr>
+      ${rows.map(o => `
+        <tr>
+          <td>
+            <strong>${esc(o.name)}</strong><br>
+            <small>${esc(o.notes || "")}</small>
+          </td>
+          <td>${esc(o.account)}</td>
+          <td>${esc(o.rep)}</td>
+          <td>${esc(o.region)}</td>
+          <td>${badge(o.stage)}</td>
+          <td>${money(o.value)}</td>
+          <td>${esc(o.probability)}%</td>
+          <td>${badge(getOpportunityHealth(o))}</td>
+          <td>${esc(o.close)}</td>
+          <td>
+            <button class="secondary" onclick="editOpportunity(${o.id})">Edit</button>
+            <button class="danger" onclick="deleteOpportunity(${o.id})">Delete</button>
+          </td>
+        </tr>
+      `).join("")}
+    </table>
+  ` : `<p class="empty">No matching opportunities.</p>`;
+}
+
+function sortOpportunities(field) {
+  if (opportunitySort.field === field) {
+    opportunitySort.direction =
+      opportunitySort.direction === "asc" ? "desc" : "asc";
+  } else {
+    opportunitySort = {field, direction:"asc"};
   }
 
-  container.innerHTML = `
-    <div class="table-wrap">
-      <table>
-        <tr>
-          <th>Name</th>
-          <th>Account</th>
-          <th>Stage</th>
-          <th>Value</th>
-        </tr>
-        ${rows.map(item => `
-          <tr>
-            <td><strong>${esc(item.name)}</strong></td>
-            <td>${esc(item.account)}</td>
-            <td>${badge(item.stage)}</td>
-            <td>${money(item.value)}</td>
-          </tr>
-        `).join("")}
-      </table>
-    </div>
-  `;
+  renderOpportunities();
 }
 
 function renderActivities() {
-  const container = getElement("activityTable");
-  if (!container) return;
-
   const query = (
-    getElement("activitySearch")?.value || ""
+    document.getElementById("activitySearch")?.value || ""
   ).toLowerCase();
 
-  const rows = data.activities.filter(item =>
-    Object.values(item).join(" ").toLowerCase().includes(query)
+  const rows = data.activities.filter(a =>
+    Object.values(a).join(" ").toLowerCase().includes(query)
   );
 
-  if (!rows.length) {
-    container.innerHTML = `<div class="empty">No activities found</div>`;
-    return;
-  }
-
-  container.innerHTML = `
-    <div class="table-wrap">
-      <table>
+  document.getElementById("activityTable").innerHTML = rows.length ? `
+    <table>
+      <tr>
+        <th>Date</th><th>Type</th><th>Subject</th>
+        <th>Account</th><th>Rep</th><th>Outcome</th><th>Actions</th>
+      </tr>
+      ${rows.map(a => `
         <tr>
-          <th>Date</th>
-          <th>Subject</th>
-          <th>Outcome</th>
+          <td>${esc(a.date)}</td>
+          <td>${badge(a.type)}</td>
+          <td>
+            <strong>${esc(a.subject)}</strong><br>
+            <small>${esc(a.notes || "")}</small>
+          </td>
+          <td>${esc(a.account)}</td>
+          <td>${esc(a.rep)}</td>
+          <td>${badge(a.outcome)}</td>
+          <td>
+            <button class="secondary" onclick="editActivity(${a.id})">Edit</button>
+            <button class="danger" onclick="deleteActivity(${a.id})">Delete</button>
+          </td>
         </tr>
-        ${rows.map(item => `
-          <tr>
-            <td>${esc(item.date)}</td>
-            <td>${esc(item.subject)}</td>
-            <td>${badge(item.outcome)}</td>
-          </tr>
-        `).join("")}
-      </table>
-    </div>
-  `;
+      `).join("")}
+    </table>
+  ` : `<p class="empty">No activities recorded.</p>`;
 }
 
 function renderTasks() {
-  const container = getElement("taskTable");
-  if (!container) return;
+  const status = document.getElementById("taskStatusFilter")?.value || "";
+  const priority = document.getElementById("taskPriorityFilter")?.value || "";
 
-  const query = (
-    getElement("taskSearch")?.value || ""
-  ).toLowerCase();
+  const rows = data.tasks
+    .filter(t =>
+      (!status || t.status === status) &&
+      (!priority || t.priority === priority)
+    )
+    .sort((a,b) => a.due.localeCompare(b.due));
 
-  const filter = getElement("taskFilter")?.value || "";
-  const now = new Date();
-
-  const rows = data.tasks.filter(task => {
-    const matchesSearch = Object.values(task)
-      .join(" ")
-      .toLowerCase()
-      .includes(query);
-
-    const overdue =
-      task.status !== "Completed" &&
-      task.due &&
-      new Date(task.due) < now;
-
-    const upcoming =
-      task.status !== "Completed" &&
-      task.due &&
-      new Date(task.due) >= now;
-
-    const matchesFilter =
-      !filter ||
-      (filter === "completed" && task.status === "Completed") ||
-      (filter === "open" && task.status !== "Completed") ||
-      (filter === "overdue" && overdue) ||
-      (filter === "upcoming" && upcoming);
-
-    return matchesSearch && matchesFilter;
-  });
-
-  if (!rows.length) {
-    container.innerHTML = `<div class="empty">No tasks found</div>`;
-    return;
-  }
-
-  container.innerHTML = `
-    <div class="table-wrap">
-      <table>
+  document.getElementById("taskTable").innerHTML = rows.length ? `
+    <table>
+      <tr>
+        <th>Task</th><th>Account</th><th>Opportunity</th>
+        <th>Rep</th><th>Due Date</th><th>Priority</th>
+        <th>Status</th><th>Actions</th>
+      </tr>
+      ${rows.map(t => `
         <tr>
-          <th>Task</th>
-          <th>Due</th>
-          <th>Status</th>
+          <td>
+            <strong>${esc(t.title)}</strong><br>
+            <small>${esc(t.notes || "")}</small>
+          </td>
+          <td>${esc(t.account)}</td>
+          <td>${esc(t.opportunity)}</td>
+          <td>${esc(t.rep)}</td>
+          <td>${t.status !== "Complete" && t.due < todayISO()
+            ? badge("Overdue")
+            : esc(t.due)}</td>
+          <td>${badge(t.priority)}</td>
+          <td>${badge(t.status)}</td>
+          <td>
+            <button class="secondary" onclick="editTask(${t.id})">Edit</button>
+            <button class="danger" onclick="deleteTask(${t.id})">Delete</button>
+          </td>
         </tr>
-        ${rows.map(item => `
-          <tr>
-            <td>${esc(item.title)}</td>
-            <td>${esc(item.due)}</td>
-            <td>${badge(item.status)}</td>
-          </tr>
-        `).join("")}
-      </table>
-    </div>
-  `;
+      `).join("")}
+    </table>
+  ` : `<p class="empty">No matching tasks.</p>`;
 }
 
 function renderAccounts() {
-  const container = getElement("accountTable");
-  if (!container) return;
-
-  const query = (
-    getElement("accountSearch")?.value || ""
-  ).toLowerCase();
-
-  const rows = data.accounts.filter(item =>
-    Object.values(item).join(" ").toLowerCase().includes(query)
-  );
-
-  if (!rows.length) {
-    container.innerHTML = `<div class="empty">No accounts found</div>`;
-    return;
-  }
-
-  container.innerHTML = `
-    <div class="table-wrap">
-      <table>
+  document.getElementById("accountTable").innerHTML = `
+    <table>
+      <tr>
+        <th>Account</th><th>Region</th><th>Specialty</th>
+        <th>Owner</th><th>Priority</th><th>Status</th>
+      </tr>
+      ${data.accounts.map(a => `
         <tr>
-          <th>Name</th>
-          <th>Owner</th>
-          <th>Status</th>
+          <td><strong>${esc(a.name)}</strong></td>
+          <td>${esc(a.region)}</td>
+          <td>${esc(a.specialty)}</td>
+          <td>${esc(a.owner)}</td>
+          <td>${badge(a.priority)}</td>
+          <td>${badge(a.status)}</td>
         </tr>
-        ${rows.map(item => `
-          <tr>
-            <td>${esc(item.name)}</td>
-            <td>${esc(item.owner)}</td>
-            <td>${badge(item.status)}</td>
-          </tr>
-        `).join("")}
-      </table>
+      `).join("")}
+    </table>
+  `;
+}
+
+function openModal(title, html, submit) {
+  document.getElementById("modalTitle").textContent = title;
+
+  document.getElementById("modalForm").innerHTML = html + `
+    <div class="modal-actions">
+      <button type="button" class="secondary" onclick="closeModal()">Cancel</button>
+      <button class="primary">Save</button>
+    </div>
+  `;
+
+  document.getElementById("modal").classList.add("show");
+
+  document.getElementById("modalForm").onsubmit = event => {
+    event.preventDefault();
+    submit(new FormData(event.target));
+    closeModal();
+  };
+}
+
+function closeModal() {
+  document.getElementById("modal").classList.remove("show");
+}
+
+function opportunityForm(o = {}) {
+  return `
+    <div class="form-grid">
+      <label>Opportunity name
+        <input name="name" required value="${esc(o.name)}">
+      </label>
+
+      <label>Account
+        <input name="account" required value="${esc(o.account)}">
+      </label>
+
+      <label>Sales representative
+        <input name="rep" required value="${esc(o.rep)}">
+      </label>
+
+      <label>Region
+        <input name="region" required value="${esc(o.region)}">
+      </label>
+
+      <label>Stage
+        <select name="stage">
+          ${[
+            "Lead","Qualified","Discovery","Demo",
+            "Proposal","Closed Won","Closed Lost"
+          ].map(x => `
+            <option ${o.stage === x ? "selected" : ""}>${x}</option>
+          `).join("")}
+        </select>
+      </label>
+
+      <label>Value
+        <input name="value" type="number" min="0" required value="${esc(o.value)}">
+      </label>
+
+      <label>Probability (%)
+        <input name="probability" type="number" min="0" max="100"
+          value="${esc(o.probability ?? 50)}">
+      </label>
+
+      <label>Created date
+        <input name="created" type="date" required value="${esc(o.created)}">
+      </label>
+
+      <label>Qualified date
+        <input name="qualified" type="date" value="${esc(o.qualified)}">
+      </label>
+
+      <label>Expected close date
+        <input name="close" type="date" required value="${esc(o.close)}">
+      </label>
+
+      <label class="full">Notes
+        <textarea name="notes">${esc(o.notes)}</textarea>
+      </label>
     </div>
   `;
 }
 
-function download(filename, content, type = "text/csv") {
-  const blob = new Blob([content], { type });
-  const url = URL.createObjectURL(blob);
-  const link = document.createElement("a");
-
-  link.href = url;
-  link.download = filename;
-  document.body.appendChild(link);
-  link.click();
-  link.remove();
-
-  URL.revokeObjectURL(url);
-}
-
-function exportAll() {
-  const header = "Name,Account,Representative,Region,Stage,Value\n";
-
-  const rows = data.opportunities.map(item => [
-    item.name,
-    item.account,
-    item.rep,
-    item.region,
-    item.stage,
-    item.value
-  ].map(value => `"${String(value ?? "").replace(/"/g, '""')}"`).join(","));
-
-  download("opportunities.csv", header + rows.join("\n"));
-}
-
-function exportTasks() {
-  const header = "Title,Account,Representative,Due,Priority,Status\n";
-
-  const rows = data.tasks.map(item => [
-    item.title,
-    item.account,
-    item.rep,
-    item.due,
-    item.priority,
-    item.status
-  ].map(value => `"${String(value ?? "").replace(/"/g, '""')}"`).join(","));
-
-  download("tasks.csv", header + rows.join("\n"));
-}
-
-function backupData() {
-  download(
-    "sales-dashboard-backup.json",
-    JSON.stringify(data, null, 2),
-    "application/json"
-  );
-}
-
-function importData(event) {
-  const file = event.target.files?.[0];
-  if (!file) return;
-
-  const reader = new FileReader();
-
-  reader.onload = function () {
-    try {
-      const imported = JSON.parse(reader.result);
-
-      data = {
-        opportunities: Array.isArray(imported.opportunities)
-          ? imported.opportunities
-          : [],
-        activities: Array.isArray(imported.activities)
-          ? imported.activities
-          : [],
-        tasks: Array.isArray(imported.tasks)
-          ? imported.tasks
-          : [],
-        accounts: Array.isArray(imported.accounts)
-          ? imported.accounts
-          : []
-      };
-
-      save();
-      location.reload();
-    } catch (error) {
-      alert("The selected file is not a valid dashboard backup.");
-      console.error(error);
-    }
-  };
-
-  reader.readAsText(file);
-}
-
-function resetData() {
-  if (!confirm("Reset all dashboard data to the sample data?")) return;
-
-  data = structuredClone(sampleData);
-  save();
-  location.reload();
-}
-
-/* Safe placeholder functions for buttons in the existing HTML */
 function openOpportunityModal() {
-  alert("Opportunity entry form is not available in this version.");
+  openModal("Add Opportunity", opportunityForm({
+    created:todayISO(),
+    probability:50
+  }), form => {
+    const o = Object.fromEntries(form.entries());
+
+    o.id = Date.now();
+    o.value = Number(o.value);
+    o.probability = Number(o.probability);
+
+    data.opportunities.push(o);
+
+    if (o.stage !== "Closed Won" && o.stage !== "Closed Lost") {
+      createAutomaticTask(
+        `Follow up on ${o.name}`,
+        o,
+        addDays(todayISO(), 7),
+        "Medium",
+        "Automatic follow-up created when the opportunity was added."
+      );
+    }
+
+    save();
+    refreshAll();
+  });
+}
+
+function editOpportunity(id) {
+  const existing = data.opportunities.find(o => o.id === id);
+  if (!existing) return;
+
+  openModal("Edit Opportunity", opportunityForm(existing), form => {
+    const updated = Object.fromEntries(form.entries());
+
+    updated.id = id;
+    updated.value = Number(updated.value);
+    updated.probability = Number(updated.probability);
+
+    const index = data.opportunities.findIndex(o => o.id === id);
+    data.opportunities[index] = updated;
+
+    save();
+    refreshAll();
+  });
+}
+
+function activityForm(a = {}) {
+  return `
+    <div class="form-grid">
+      <label>Date
+        <input name="date" type="date" required value="${esc(a.date || todayISO())}">
+      </label>
+
+      <label>Activity type
+        <select name="type">
+          ${[
+            "Call","Email","Meeting",
+            "Discovery Call","Demo","Proposal Follow-up"
+          ].map(x => `
+            <option ${a.type === x ? "selected" : ""}>${x}</option>
+          `).join("")}
+        </select>
+      </label>
+
+      <label class="full">Subject
+        <input name="subject" required value="${esc(a.subject)}">
+      </label>
+
+      <label>Account
+        <input name="account" required value="${esc(a.account)}">
+      </label>
+
+      <label>Sales representative
+        <input name="rep" required value="${esc(a.rep)}">
+      </label>
+
+      <label class="full">Outcome
+        <select name="outcome">
+          ${[
+            "Positive",
+            "Follow-up required",
+            "Awaiting response",
+            "Completed",
+            "Not interested"
+          ].map(x => `
+            <option ${a.outcome === x ? "selected" : ""}>${x}</option>
+          `).join("")}
+        </select>
+      </label>
+
+      <label class="full">Notes
+        <textarea name="notes">${esc(a.notes)}</textarea>
+      </label>
+    </div>
+  `;
 }
 
 function openActivityModal() {
-  alert("Activity entry form is not available in this version.");
+  openModal("Add Activity", activityForm(), form => {
+    const a = Object.fromEntries(form.entries());
+    a.id = Date.now();
+
+    data.activities.push(a);
+
+    if (a.outcome === "Follow-up required") {
+      const opp = data.opportunities.find(o => o.account === a.account);
+
+      createAutomaticTask(
+        `Follow up: ${a.subject}`,
+        opp || {
+          account:a.account,
+          name:"",
+          rep:a.rep
+        },
+        addDays(a.date, 3),
+        "High",
+        "Automatically created from an activity requiring follow-up."
+      );
+    }
+
+    save();
+    refreshAll();
+  });
+}
+
+function editActivity(id) {
+  const existing = data.activities.find(a => a.id === id);
+  if (!existing) return;
+
+  openModal("Edit Activity", activityForm(existing), form => {
+    const updated = Object.fromEntries(form.entries());
+    updated.id = id;
+
+    const index = data.activities.findIndex(a => a.id === id);
+    data.activities[index] = updated;
+
+    save();
+    refreshAll();
+  });
+}
+
+function taskForm(t = {}) {
+  const opportunities = data.opportunities
+    .map(o => `<option ${t.opportunity === o.name ? "selected" : ""}>${esc(o.name)}</option>`)
+    .join("");
+
+  return `
+    <div class="form-grid">
+      <label class="full">Task title
+        <input name="title" required value="${esc(t.title)}">
+      </label>
+
+      <label>Account
+        <input name="account" required value="${esc(t.account)}">
+      </label>
+
+      <label>Opportunity
+        <select name="opportunity">
+          <option value="">No linked opportunity</option>
+          ${opportunities}
+        </select>
+      </label>
+
+      <label>Assigned representative
+        <input name="rep" required value="${esc(t.rep)}">
+      </label>
+
+      <label>Due date
+        <input name="due" type="date" required value="${esc(t.due || todayISO())}">
+      </label>
+
+      <label>Priority
+        <select name="priority">
+          ${["High","Medium","Low"].map(x => `
+            <option ${t.priority === x ? "selected" : ""}>${x}</option>
+          `).join("")}
+        </select>
+      </label>
+
+      <label>Status
+        <select name="status">
+          ${["To Do","In Progress","Complete","Snoozed"].map(x => `
+            <option ${t.status === x ? "selected" : ""}>${x}</option>
+          `).join("")}
+        </select>
+      </label>
+
+      <label class="full">Notes
+        <textarea name="notes">${esc(t.notes)}</textarea>
+      </label>
+    </div>
+  `;
 }
 
 function openTaskModal() {
-  alert("Task entry form is not available in this version.");
+  openModal("Add Task", taskForm({
+    due:addDays(todayISO(), 7),
+    priority:"Medium",
+    status:"To Do"
+  }), form => {
+    const t = Object.fromEntries(form.entries());
+    t.id = Date.now();
+
+    data.tasks.push(t);
+    save();
+    refreshAll();
+  });
 }
 
-function openAccountModal() {
-  alert("Account entry form is not available in this version.");
+function editTask(id) {
+  const existing = data.tasks.find(t => t.id === id);
+  if (!existing) return;
+
+  openModal("Edit Task", taskForm(existing), form => {
+    const updated = Object.fromEntries(form.entries());
+    updated.id = id;
+
+    const index = data.tasks.findIndex(t => t.id === id);
+    data.tasks[index] = updated;
+
+    save();
+    refreshAll();
+  });
 }
 
-function closeModal() {
-  const modal = getElement("modal");
-  if (modal) modal.classList.remove("show");
+function createAutomaticTask(title, opportunity, due, priority, notes) {
+  data.tasks.push({
+    id:Date.now() + Math.floor(Math.random() * 1000),
+    title,
+    account:opportunity.account || "",
+    opportunity:opportunity.name || "",
+    rep:opportunity.rep || "",
+    due,
+    priority,
+    status:"To Do",
+    notes
+  });
 }
 
-/* Start only after the HTML has loaded */
-document.addEventListener("DOMContentLoaded", function () {
-  renderToday();
+function addDays(dateString, days) {
+  const date = new Date(dateString + "T00:00:00");
+  date.setDate(date.getDate() + days);
+  return date.toISOString().slice(0,10);
+}
+
+function deleteOpportunity(id) {
+  if (!confirm("Delete this opportunity?")) return;
+
+  data.opportunities = data.opportunities.filter(o => o.id !== id);
+  save();
+  refreshAll();
+}
+
+function deleteActivity(id) {
+  if (!confirm("Delete this activity?")) return;
+
+  data.activities = data.activities.filter(a => a.id !== id);
+  save();
+  refreshAll();
+}
+
+function deleteTask(id) {
+  if (!confirm("Delete this task?")) return;
+
+  data.tasks = data.tasks.filter(t => t.id !== id);
+  save();
+  refreshAll();
+}
+
+function filterByStage(stage) {
+  document.getElementById("dashboardStage").value = stage;
+  renderDashboard();
+}
+
+function filterByRep(rep) {
+  document.getElementById("dashboardRep").value = rep;
+  renderDashboard();
+}
+
+function filterByRegion(region) {
+  document.getElementById("dashboardRegion").value = region;
+  renderDashboard();
+}
+
+function filterByHealth(health) {
+  document.getElementById("dashboardHealth").value = health;
+  renderDashboard();
+}
+
+function clearDashboardFilters() {
+  document.getElementById("dashboardRep").value = "";
+  document.getElementById("dashboardRegion").value = "";
+  document.getElementById("dashboardStage").value = "";
+  document.getElementById("dashboardHealth").value = "";
+  renderDashboard();
+}
+
+function csv(rows) {
+  if (!rows.length) return "";
+
+  const headers = Object.keys(rows[0]);
+
+  return [
+    headers.join(","),
+    ...rows.map(row => headers.map(header =>
+      `"${String(row[header] ?? "").replace(/"/g,'""')}"`
+    ).join(","))
+  ].join("\n");
+}
+
+function download(filename, content) {
+  const blob = new Blob([content], {
+    type:"text/csv;charset=utf-8"
+  });
+
+  const link = document.createElement("a");
+  link.href = URL.createObjectURL(blob);
+  link.download = filename;
+  link.click();
+
+  setTimeout(() => URL.revokeObjectURL(link.href), 500);
+}
+
+function exportAll() {
+  download("opportunities.csv", csv(data.opportunities));
+
+  setTimeout(() => {
+    download("activities.csv", csv(data.activities));
+  }, 300);
+
+  setTimeout(() => {
+    download("tasks.csv", csv(data.tasks));
+  }, 600);
+
+  setTimeout(() => {
+    download("accounts.csv", csv(data.accounts));
+  }, 900);
+}
+
+function resetData() {
+  if (!confirm("Restore the original sample data?")) return;
+
+  data = JSON.parse(JSON.stringify(sampleData));
+  save();
+  refreshAll();
+}
+
+function refreshAll() {
   setupFilters();
   renderDashboard();
   renderOpportunities();
   renderActivities();
   renderTasks();
   renderAccounts();
+}
+
+document.getElementById("modal").addEventListener("click", event => {
+  if (event.target.id === "modal") closeModal();
 });
+
+setupFilters();
+renderDashboard();
+renderOpportunities();
+renderActivities();
+renderTasks();
+renderAccounts();
 </script>
+
+</body>
+</html>
